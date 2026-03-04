@@ -1,0 +1,15 @@
+# Protéger les fichiers sensibles
+<Files "config.php">
+    Order allow,deny
+    Deny from all
+</Files>
+
+# Rediriger vers login par défaut si pas authentifié
+DirectoryIndex login.php
+
+# Protection contre les injections
+php_flag display_errors Off
+php_flag log_errors On
+
+# Empêcher l'affichage de la liste des fichiers
+Options -Indexes
