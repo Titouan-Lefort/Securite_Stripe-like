@@ -64,11 +64,6 @@ Aller sur :
 http://localhost:8000/login.php
 ```
 
-**Compte admin par défaut :**
-
-- Email : `admin@admin.com`
-- Mot de passe : `Admin123!`
-
 Pour créer un compte utilisateur, aller sur :
 
 ```
