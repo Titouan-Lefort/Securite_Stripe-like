@@ -7,6 +7,10 @@ $error = '';
 $success = '';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    // verification token CSRF
+    if (!verifyCsrfToken($_POST['csrf_token'] ?? '')) {
+        $error = "Erreur de sécurité, veuillez réessayer";
+    } else {
     $amount = $_POST['amount'];
     $cardNumber = str_replace(' ', '', $_POST['card_number']);
     $cardExpiry = $_POST['card_expiry'];
@@ -38,6 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $error = "Erreur lors du paiement : " . $e->getMessage();
         }
     }
+    }
 }
 
 require_once 'includes/header.php';
@@ -54,6 +59,7 @@ require_once 'includes/header.php';
 <?php else: ?>
     <div class="card">
         <form method="POST">
+            <?php echo csrfInput(); ?>
             <div>
                 <label>Montant (€)</label>
                 <input type="number" name="amount" step="0.01" min="0.01" placeholder="0,00" required>

@@ -19,6 +19,10 @@ $refundError = '';
 $refundSuccess = '';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['refund'])) {
+    // verification token CSRF
+    if (!verifyCsrfToken($_POST['csrf_token'] ?? '')) {
+        $refundError = "Erreur de sécurité, veuillez réessayer";
+    } else {
     $paymentId = $_POST['payment_id'];
     $refundAmount = $_POST['refund_amount'];
 
@@ -55,6 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['refund'])) {
         } catch (PDOException $e) {
             $refundError = "Erreur lors du remboursement";
         }
+    }
     }
 }
 
@@ -107,6 +112,7 @@ require_once 'includes/header.php';
                                 <button class="btn-sm btn-outline" onclick="toggleRefund(<?php echo $p['id']; ?>)">Rembourser</button>
                                 <div id="refund-<?php echo $p['id']; ?>" class="refund-form" style="display:none;margin-top:.5rem">
                                     <form method="POST" style="display:flex;gap:.4rem;align-items:center">
+                                        <?php echo csrfInput(); ?>
                                         <input type="hidden" name="payment_id" value="<?php echo $p['id']; ?>">
                                         <input type="number" name="refund_amount" step="0.01" max="<?php echo $restant; ?>" placeholder="€" required style="width:80px">
                                         <button type="submit" name="refund" class="btn-sm btn-danger">OK</button>

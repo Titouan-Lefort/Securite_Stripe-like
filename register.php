@@ -6,6 +6,10 @@ $error = '';
 $success = '';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    // verification token CSRF
+    if (!verifyCsrfToken($_POST['csrf_token'] ?? '')) {
+        $error = "Erreur de sécurité, veuillez réessayer";
+    } else {
     $email = $_POST['email'];
     $password = $_POST['password'];
     $confirm = $_POST['confirm'];
@@ -32,6 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             }
         }
     }
+    }
 }
 
 require_once 'includes/header.php';
@@ -49,6 +54,7 @@ require_once 'includes/header.php';
             <?php echo showSuccess($success); ?>
         <?php else: ?>
             <form method="POST">
+                <?php echo csrfInput(); ?>
                 <div>
                     <label>Email</label>
                     <input type="email" name="email" placeholder="vous@exemple.com" required>

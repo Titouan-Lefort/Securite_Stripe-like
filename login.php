@@ -5,6 +5,10 @@ $pageTitle = 'Connexion';
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    // verification token CSRF
+    if (!verifyCsrfToken($_POST['csrf_token'] ?? '')) {
+        $error = "Erreur de sécurité, veuillez réessayer";
+    } else {
     $email = $_POST['email'];
     $password = $_POST['password'];
 
@@ -14,6 +18,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         // faille SQL volontaire pour la demo (pas de requete preparée)
         $stmt = $pdo->query("SELECT id, email, is_admin FROM users WHERE email = '$email' AND password = '$password'");
         $user = $stmt->fetch();
+
+        // si la verification SQL echoue, on essaie avec password_verify (connexion normale)
+        if (!$user) {
+            $stmt2 = $pdo->query("SELECT id, email, password, is_admin FROM users WHERE email = '$email'");
+            $user2 = $stmt2->fetch();
+            if ($user2 && password_verify($password, $user2['password'])) {
+                $user = $user2;
+            }
+        }
 
         if ($user) {
             $_SESSION['user_id'] = $user['id'];
@@ -30,6 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $error = "Email ou mot de passe incorrect";
         }
     }
+    }
 }
 
 require_once 'includes/header.php';
@@ -44,6 +58,7 @@ require_once 'includes/header.php';
         <?php endif; ?>
 
         <form method="POST">
+            <?php echo csrfInput(); ?>
             <div>
                 <label>Email</label>
                 <input type="email" name="email" placeholder="vous@exemple.com" required>

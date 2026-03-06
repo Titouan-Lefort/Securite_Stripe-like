@@ -73,7 +73,38 @@ function requireAdmin()
 // nettoyer le html du message (on garde juste le gras, italique, couleurs)
 function sanitizeMessage($message)
 {
-    return strip_tags($message, '<b><i><strong><em><span>');
+    // on garde que les balises de mise en forme
+    $clean = strip_tags($message, '<b><i><strong><em><span>');
+
+    // on vire tous les attributs on* (onclick, onmouseover etc) pour eviter le XSS
+    $clean = preg_replace('/\s+on\w+\s*=\s*(["\']).*?\1/i', '', $clean);
+    $clean = preg_replace('/\s+on\w+\s*=\s*[^\s>]*/i', '', $clean);
+
+    // on vire javascript: dans les attributs
+    $clean = preg_replace('/javascript\s*:/i', '', $clean);
+
+    return $clean;
+}
+
+// generation token CSRF
+function generateCsrfToken()
+{
+    if (empty($_SESSION['csrf_token'])) {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
+    return $_SESSION['csrf_token'];
+}
+
+// verification token CSRF
+function verifyCsrfToken($token)
+{
+    return isset($_SESSION['csrf_token']) && hash_equals($_SESSION['csrf_token'], $token);
+}
+
+// champ hidden pour les formulaires
+function csrfInput()
+{
+    return '<input type="hidden" name="csrf_token" value="' . generateCsrfToken() . '">';
 }
 
 // messages d'erreur / succès
