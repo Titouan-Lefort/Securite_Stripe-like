@@ -51,6 +51,7 @@ http://localhost:8000/install.php
 ```
 
 Ce script crée automatiquement :
+
 - La base de données `paiement`
 - Les tables `users`, `payments`, `refunds`
 - Un compte administrateur par défaut
@@ -64,6 +65,7 @@ http://localhost:8000/login.php
 ```
 
 **Compte admin par défaut :**
+
 - Email : `admin@admin.com`
 - Mot de passe : `Admin123!`
 
@@ -71,37 +73,5 @@ Pour créer un compte utilisateur, aller sur :
 
 ```
 http://localhost:8000/register.php
-```
-
-## Structure du projet
 
 ```
-├── includes/
-│   ├── config.php        # Configuration BDD + clé de chiffrement
-│   ├── Database.php       # Connexion PDO (singleton)
-│   ├── functions.php      # Fonctions utilitaires (chiffrement, CSRF, etc.)
-│   ├── header.php         # En-tête HTML commun
-│   ├── footer.php         # Pied de page commun
-│   └── init.php           # Initialisation (session, headers, chargement)
-├── public/
-│   └── css/
-│       └── style.css      # Feuille de styles
-├── admin.php              # Panneau d'administration (remboursements)
-├── index.php              # Historique des paiements (utilisateur)
-├── install.php            # Script d'installation de la BDD
-├── login.php              # Page de connexion
-├── logout.php             # Déconnexion
-├── payment.php            # Formulaire de paiement
-├── register.php           # Inscription
-└── README.md
-```
-
-## Fonctionnalités
-
-- **Authentification** : inscription, connexion, déconnexion avec mots de passe hashés (bcrypt)
-- **Chiffrement des cartes** : numéros chiffrés en AES-256-CBC, seuls les 4 derniers chiffres sont affichés
-- **Paiements** : formulaire avec éditeur de texte riche (gras, italique, couleur)
-- **Administration** : vue de tous les paiements, système de remboursement partiel/total
-- **Protection CSRF** : tokens sur tous les formulaires
-- **Protection XSS** : échappement HTML, nettoyage des messages
-- **Headers de sécurité** : X-Content-Type-Options, X-Frame-Options, X-XSS-Protection
