@@ -66,14 +66,14 @@
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
 
             // compte admin par defaut
-            $adminPassword = password_hash('Admin123!', PASSWORD_DEFAULT);
+            $adminPassword = password_hash('Securepay@2026!', PASSWORD_DEFAULT);
             $pdo->exec("INSERT IGNORE INTO users (email, password, is_admin) VALUES ('admin@admin.com', '$adminPassword', TRUE)");
 
             echo '<div class="alert success">';
             echo 'Installation réussie !<br>';
             echo '<strong>Compte admin :</strong><br>';
             echo 'Email : admin@admin.com<br>';
-            echo 'Mot de passe : Admin123!<br><br>';
+            echo 'Mot de passe : Securepay@2026!<br><br>';
             echo '<a href="login.php" class="btn">Se connecter</a>';
             echo '</div>';
         } catch (PDOException $e) {

@@ -23,43 +23,43 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['refund'])) {
     if (!verifyCsrfToken($_POST['csrf_token'] ?? '')) {
         $refundError = "Erreur de sécurité, veuillez réessayer";
     } else {
-    $paymentId = $_POST['payment_id'];
-    $refundAmount = $_POST['refund_amount'];
+        $paymentId = $_POST['payment_id'];
+        $refundAmount = $_POST['refund_amount'];
 
-    // on vérifie combien il reste à rembourser
-    $stmt = $pdo->prepare("SELECT amount FROM payments WHERE id = ?");
-    $stmt->execute([$paymentId]);
-    $payment = $stmt->fetch();
+        // on vérifie combien il reste à rembourser
+        $stmt = $pdo->prepare("SELECT amount FROM payments WHERE id = ?");
+        $stmt->execute([$paymentId]);
+        $payment = $stmt->fetch();
 
-    $stmt = $pdo->prepare("SELECT COALESCE(SUM(amount), 0) as total FROM refunds WHERE payment_id = ?");
-    $stmt->execute([$paymentId]);
-    $refunded = $stmt->fetch()['total'];
+        $stmt = $pdo->prepare("SELECT COALESCE(SUM(amount), 0) as total FROM refunds WHERE payment_id = ?");
+        $stmt->execute([$paymentId]);
+        $refunded = $stmt->fetch()['total'];
 
-    $remaining = $payment['amount'] - $refunded;
+        $remaining = $payment['amount'] - $refunded;
 
-    if ($refundAmount <= 0) {
-        $refundError = "Le montant doit être positif";
-    } elseif ($refundAmount > $remaining) {
-        $refundError = "Le montant du remboursement dépasse le montant restant ($remaining €)";
-    } else {
-        try {
-            $stmt = $pdo->prepare("INSERT INTO refunds (payment_id, amount) VALUES (?, ?)");
-            $stmt->execute([$paymentId, $refundAmount]);
-            $refundSuccess = "Remboursement de $refundAmount € effectué";
+        if ($refundAmount <= 0) {
+            $refundError = "Le montant doit être positif";
+        } elseif ($refundAmount > $remaining) {
+            $refundError = "Le montant du remboursement dépasse le montant restant ($remaining €)";
+        } else {
+            try {
+                $stmt = $pdo->prepare("INSERT INTO refunds (payment_id, amount) VALUES (?, ?)");
+                $stmt->execute([$paymentId, $refundAmount]);
+                $refundSuccess = "Remboursement de $refundAmount € effectué";
 
-            // on recharge la liste
-            $stmt = $pdo->query("
+                // on recharge la liste
+                $stmt = $pdo->query("
                 SELECT p.*, u.email, 
                 (SELECT COALESCE(SUM(r.amount), 0) FROM refunds r WHERE r.payment_id = p.id) as refunded_amount
                 FROM payments p 
                 JOIN users u ON p.user_id = u.id 
                 ORDER BY p.created_at DESC
             ");
-            $payments = $stmt->fetchAll();
-        } catch (PDOException $e) {
-            $refundError = "Erreur lors du remboursement";
+                $payments = $stmt->fetchAll();
+            } catch (PDOException $e) {
+                $refundError = "Erreur lors du remboursement";
+            }
         }
-    }
     }
 }
 

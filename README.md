@@ -25,14 +25,9 @@ php -v
 
 ### 3. Vérifier que MySQL/MariaDB est lancé
 
-Le serveur MySQL doit tourner sur `localhost` avec l'utilisateur `root` et **pas de mot de passe**. Si votre configuration est différente, modifiez le fichier `includes/config.php` :
+Le serveur MySQL doit tourner sur `localhost` avec l'utilisateur `root` et **pas de mot de passe**.
 
-```php
-define('DB_HOST', 'localhost');
-define('DB_NAME', 'paiement');
-define('DB_USER', 'root');
-define('DB_PASS', '');
-```
+````
 
 ### 4. Lancer le serveur PHP
 
@@ -40,7 +35,7 @@ Depuis la racine du projet :
 
 ```bash
 php -S localhost:8000
-```
+````
 
 ### 5. Installer la base de données
 
@@ -68,5 +63,4 @@ Pour créer un compte utilisateur, aller sur :
 
 ```
 http://localhost:8000/register.php
-
 ```

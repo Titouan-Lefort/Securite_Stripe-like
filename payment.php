@@ -11,37 +11,37 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (!verifyCsrfToken($_POST['csrf_token'] ?? '')) {
         $error = "Erreur de sécurité, veuillez réessayer";
     } else {
-    $amount = $_POST['amount'];
-    $cardNumber = str_replace(' ', '', $_POST['card_number']);
-    $cardExpiry = $_POST['card_expiry'];
-    $cvv = $_POST['cvv'];
-    $message = $_POST['message'];
+        $amount = $_POST['amount'];
+        $cardNumber = str_replace(' ', '', $_POST['card_number']);
+        $cardExpiry = $_POST['card_expiry'];
+        $cvv = $_POST['cvv'];
+        $message = $_POST['message'];
 
-    // verifications
-    if (empty($amount) || empty($cardNumber) || empty($cardExpiry) || empty($cvv)) {
-        $error = "Tous les champs sont obligatoires";
-    } elseif ($amount <= 0) {
-        $error = "Le montant doit être positif";
-    } elseif (strlen($cardNumber) > 16 || !ctype_digit($cardNumber)) {
-        $error = "Numéro de carte invalide (16 chiffres maximum)";
-    } elseif (!preg_match('/^\d{2}\/\d{2}$/', $cardExpiry)) {
-        $error = "Date d'expiration invalide (MM/YY)";
-    } elseif (!preg_match('/^\d{3}$/', $cvv)) {
-        $error = "CVV invalide (3 chiffres)";
-    } else {
-        try {
-            // on chiffre le numero de carte, le cvv n'est jamais stocké
-            $encryptedCard = encrypt($cardNumber);
-            $cleanMessage = sanitizeMessage($message);
+        // verifications
+        if (empty($amount) || empty($cardNumber) || empty($cardExpiry) || empty($cvv)) {
+            $error = "Tous les champs sont obligatoires";
+        } elseif ($amount <= 0) {
+            $error = "Le montant doit être positif";
+        } elseif (strlen($cardNumber) > 16 || !ctype_digit($cardNumber)) {
+            $error = "Numéro de carte invalide (16 chiffres maximum)";
+        } elseif (!preg_match('/^\d{2}\/\d{2}$/', $cardExpiry)) {
+            $error = "Date d'expiration invalide (MM/YY)";
+        } elseif (!preg_match('/^\d{3}$/', $cvv)) {
+            $error = "CVV invalide (3 chiffres)";
+        } else {
+            try {
+                // on chiffre le numero de carte, le cvv n'est jamais stocké
+                $encryptedCard = encrypt($cardNumber);
+                $cleanMessage = sanitizeMessage($message);
 
-            $stmt = $pdo->prepare("INSERT INTO payments (user_id, amount, card_number_encrypted, card_expiry, message) VALUES (?, ?, ?, ?, ?)");
-            $stmt->execute([$_SESSION['user_id'], $amount, $encryptedCard, $cardExpiry, $cleanMessage]);
+                $stmt = $pdo->prepare("INSERT INTO payments (user_id, amount, card_number_encrypted, card_expiry, message) VALUES (?, ?, ?, ?, ?)");
+                $stmt->execute([$_SESSION['user_id'], $amount, $encryptedCard, $cardExpiry, $cleanMessage]);
 
-            $success = "Paiement effectué avec succès ! <a href='index.php'>Voir mes paiements</a>";
-        } catch (PDOException $e) {
-            $error = "Erreur lors du paiement : " . $e->getMessage();
+                $success = "Paiement effectué avec succès ! <a href='index.php'>Voir mes paiements</a>";
+            } catch (PDOException $e) {
+                $error = "Erreur lors du paiement : " . $e->getMessage();
+            }
         }
-    }
     }
 }
 

@@ -9,40 +9,40 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (!verifyCsrfToken($_POST['csrf_token'] ?? '')) {
         $error = "Erreur de sécurité, veuillez réessayer";
     } else {
-    $email = $_POST['email'];
-    $password = $_POST['password'];
+        $email = $_POST['email'];
+        $password = $_POST['password'];
 
-    if (empty($email) || empty($password)) {
-        $error = "Tous les champs sont obligatoires";
-    } else {
-        // faille SQL volontaire pour la demo (pas de requete preparée)
-        $stmt = $pdo->query("SELECT id, email, is_admin FROM users WHERE email = '$email' AND password = '$password'");
-        $user = $stmt->fetch();
-
-        // si la verification SQL echoue, on essaie avec password_verify (connexion normale)
-        if (!$user) {
-            $stmt2 = $pdo->query("SELECT id, email, password, is_admin FROM users WHERE email = '$email'");
-            $user2 = $stmt2->fetch();
-            if ($user2 && password_verify($password, $user2['password'])) {
-                $user = $user2;
-            }
-        }
-
-        if ($user) {
-            $_SESSION['user_id'] = $user['id'];
-            $_SESSION['email'] = $user['email'];
-            $_SESSION['is_admin'] = $user['is_admin'];
-
-            if ($user['is_admin']) {
-                header('Location: admin.php');
-            } else {
-                header('Location: index.php');
-            }
-            exit;
+        if (empty($email) || empty($password)) {
+            $error = "Tous les champs sont obligatoires";
         } else {
-            $error = "Email ou mot de passe incorrect";
+            // faille SQL volontaire pour la demo (pas de requete preparée)
+            $stmt = $pdo->query("SELECT id, email, is_admin FROM users WHERE email = '$email' AND password = '$password'");
+            $user = $stmt->fetch();
+
+            // si la verification SQL echoue, on essaie avec password_verify (connexion normale)
+            if (!$user) {
+                $stmt2 = $pdo->query("SELECT id, email, password, is_admin FROM users WHERE email = '$email'");
+                $user2 = $stmt2->fetch();
+                if ($user2 && password_verify($password, $user2['password'])) {
+                    $user = $user2;
+                }
+            }
+
+            if ($user) {
+                $_SESSION['user_id'] = $user['id'];
+                $_SESSION['email'] = $user['email'];
+                $_SESSION['is_admin'] = $user['is_admin'];
+
+                if ($user['is_admin']) {
+                    header('Location: admin.php');
+                } else {
+                    header('Location: index.php');
+                }
+                exit;
+            } else {
+                $error = "Email ou mot de passe incorrect";
+            }
         }
-    }
     }
 }
 
